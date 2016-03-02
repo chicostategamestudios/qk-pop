@@ -14,7 +14,7 @@ public class Checkpoint : MonoBehaviour
 {
 //START OLD CODE
     public float minDist = 0.0f; //!<Minimum distance away from the Checkpoint that CheckpointTrigger needs to be
-
+    public bool aiSearch;
 	public AIPath path_reference;
 
 //END OLD CODE
@@ -33,9 +33,20 @@ public class Checkpoint : MonoBehaviour
         Gizmos.DrawIcon (transform.position, "checkpointGizmo.png");
     }
 
-	public Vector3 getPosition(){
+	public Vector3 getPosition()
+    {
 		return transform.position;
 	}
+
+    public Quaternion getRotation()
+    {
+        return transform.rotation;
+    }
+
+    public bool getSearch()
+    {
+        return aiSearch;
+    }
 //END OLD CODE
 
 	void OnTriggerEnter(Collider col)

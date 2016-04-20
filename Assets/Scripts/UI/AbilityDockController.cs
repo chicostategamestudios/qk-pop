@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class AbilityDockController : MonoBehaviour {
 	
+	public static AbilityDockController instance;
+	
 	public Image[] abilities;
 	public float timeTakenDuringLerp = 0.35f;
 	public Image selectionBeam;
@@ -17,16 +19,21 @@ public class AbilityDockController : MonoBehaviour {
 	bool rotating;
 	bool opening;
 	bool closing;
-	bool canGetInput;
+    bool closed;
 	Vector3[] targetPos = new Vector3[5];
 
     float wheelDelay = 0;
+    float selectSkillTimer = 0f;
+
+	void Awake(){
+		instance = this;
+	}
 
 	void Start () {
-		canGetInput = true;
 		opening = false;
 		rotating = false;
 		closing = false;
+        closed = true;
 		selectionBeam.rectTransform.sizeDelta = new Vector2 (0, 0);
 		selectionBeam.transform.position = new Vector3 (selectionBeam.transform.position.x, 55, 0);
 		position = new int[abilities.Length];
@@ -36,7 +43,7 @@ public class AbilityDockController : MonoBehaviour {
 		}
 		hideIcons ();
 		xPosition = abilities [0].transform.position.x;
-
+        highligtedIcon.gameObject.SetActive(false);
 		setSelectedAbility (1); 								//Sets the default ability to "Push"
 
 		abilities[selectedAbility].transform.SetAsLastSibling();
@@ -44,7 +51,7 @@ public class AbilityDockController : MonoBehaviour {
 	
 	void Update () {
 
-		if (Input.GetKeyDown (KeyCode.Tab)) {					//Open ability dock
+		/*if (Input.GetKeyDown (KeyCode.Tab)) {					//Open ability dock
 			targetPosition();
 			opening = true;
 			closing = false;
@@ -52,15 +59,17 @@ public class AbilityDockController : MonoBehaviour {
 			startLerping();
 		}
 		else if (Input.GetKey(KeyCode.Tab)) {	//Ability dock is open
-            if (Input.GetKeyDown (KeyCode.DownArrow) || Input.GetAxis("Mouse ScrollWheel") < 0) {			//Scroll the icons down
+			if (Input.GetKeyDown (KeyCode.DownArrow) || (Input.GetAxis("Mouse ScrollWheel") < 0 && wheelDelay <= 0)) {			//Scroll the icons down
 				newPos (false);
 				rotating = true;
 				startLerping();
+				wheelDelay = 0.25f;
 			}
-			if (Input.GetKeyDown (KeyCode.UpArrow) || Input.GetAxis("Mouse ScrollWheel") > 0) {			//Scroll the icons up
+			if (Input.GetKeyDown (KeyCode.UpArrow) || (Input.GetAxis("Mouse ScrollWheel") > 0 && wheelDelay <= 0)) {			//Scroll the icons up
 				newPos (true);
 				rotating = true;
 				startLerping();
+				wheelDelay = 0.25f;
 			}
 		}
 		else if (Input.GetKeyUp (KeyCode.Tab)) {				//Close ability dock
@@ -71,48 +80,71 @@ public class AbilityDockController : MonoBehaviour {
 			abilities[selectedAbility].transform.SetAsLastSibling();
 			startLerping();
 		}
-
-        if (wheelDelay <= 0)
-        {
-            if (Input.GetAxisRaw("Mouse ScrollWheel") < 0)
-            {
-                if (selectedAbility <= 0)
-                {
-                    selectedAbility = abilities.Length;
-                }
-                setSelectedAbility(selectedAbility - 1);
-                wheelDelay = 0.25f;
-            }
-            else if (Input.GetAxisRaw("Mouse ScrollWheel") > 0)
-            {
-                if (selectedAbility >= abilities.Length - 1)
-                {
-                    selectedAbility = -1;
-                }
-                setSelectedAbility(selectedAbility + 1);
-                wheelDelay = 0.25f;
-            }
-        }
-        else
+		if(wheelDelay >= 0){
+			wheelDelay -= Time.deltaTime;
+		}*/
+		if(!PauseMenu.Instance.isPaused){
+    	    if (InputManager.input.ScrollTarget() != 0)
+	        {
+            	if (closed)
+        	    {
+    	            targetPosition();
+	                opening = true;
+                	closing = false;
+            	    showIcons();
+        	        startLerping();
+    	            closed = false;
+	                highligtedIcon.gameObject.SetActive(true);
+                	selectSkillTimer = 2f;
+            	}
+            	else if(wheelDelay <= 0)
+            	{
+                	if(InputManager.input.ScrollTarget() < 0) { newPos(false); }
+                	else if(InputManager.input.ScrollTarget() > 0) { newPos(true); }
+            	    rotating = true;
+        	        startLerping();
+    	            wheelDelay = 0.25f;
+	                selectSkillTimer = 2f;
+        	    }
+       		}
+        	else if (selectSkillTimer > 0f)
+    	    {
+	            selectSkillTimer -= Time.deltaTime;
+            	if(selectSkillTimer <= 0f){
+        	    	CloseAbilityDock();
+    	        }
+	        }
+        } 
+        if(wheelDelay > 0f)
         {
             wheelDelay -= Time.deltaTime;
         }
-
     }
+
+	void CloseAbilityDock(){
+		highligtedIcon.gameObject.SetActive(false);
+		closedPosition();
+		opening = false;
+		closing = true;
+		closed = true;
+		selectedAbility = position[2];
+		abilities[selectedAbility].transform.SetAsLastSibling();
+		startLerping();
+	}
 
 	void FixedUpdate(){
 		if (opening || rotating || closing) {
 			float timeSinceStarted = Time.time - timeStartedLerping;
 			float percentageComplete = timeSinceStarted / timeTakenDuringLerp;
 			if(opening){
-				highligtedIcon.transform.position = Vector3.Lerp(highligtedIcon.transform.position, new Vector3(highligtedIcon.transform.position.x, 215, 0), percentageComplete);
-				selectionBeam.rectTransform.sizeDelta = Vector2.Lerp(selectionBeam.rectTransform.sizeDelta, new Vector2(100, 400), percentageComplete);
-				selectionBeam.transform.position = Vector3.Lerp (selectionBeam.transform.position, new Vector3(selectionBeam.transform.position.x, 215, 0), percentageComplete);
+				highligtedIcon.transform.position = Vector3.Lerp(highligtedIcon.transform.position, new Vector3(highligtedIcon.transform.position.x, 350, 0), percentageComplete);
+				selectionBeam.rectTransform.sizeDelta = Vector2.Lerp(selectionBeam.rectTransform.sizeDelta, new Vector2(150, 650), percentageComplete);
+				selectionBeam.transform.position = Vector3.Lerp (selectionBeam.transform.position, new Vector3(selectionBeam.transform.position.x, 350, 0), percentageComplete);
 			}
 			if(closing){
-				highligtedIcon.transform.position = Vector3.Lerp(highligtedIcon.transform.position, new Vector3(highligtedIcon.transform.position.x, 55, 0), percentageComplete);
+				highligtedIcon.transform.position = Vector3.Lerp(highligtedIcon.transform.position, new Vector3(highligtedIcon.transform.position.x, 100, 0), percentageComplete);
 				selectionBeam.rectTransform.sizeDelta = Vector2.Lerp(selectionBeam.rectTransform.sizeDelta, new Vector2(0, 0), percentageComplete);			
-				selectionBeam.transform.position = Vector3.Lerp (selectionBeam.transform.position, new Vector3(selectionBeam.transform.position.x, 55, 0), percentageComplete);
+				selectionBeam.transform.position = Vector3.Lerp (selectionBeam.transform.position, new Vector3(selectionBeam.transform.position.x, 100, 0), percentageComplete);
 			}
 			for (int i = 0; i < numAbilities; i++) {
 				abilities [i].transform.position = Vector3.Lerp(abilities[i].transform.position, targetPos[i], percentageComplete);
@@ -126,12 +158,13 @@ public class AbilityDockController : MonoBehaviour {
 				if(closing){
 					hideIcons();
 				}
-				canGetInput = true;
+				//canGetInput = true;
 			}
-			if(percentageComplete >= 1f){
-				rotating = false;
-				opening = false;
-				closing = false;
+			if(percentageComplete >= 1f)
+            {
+                rotating = false;
+                opening = false;
+                closing = false;
 			}
 		}
 	}
@@ -139,7 +172,6 @@ public class AbilityDockController : MonoBehaviour {
 	/* This function sets a few basic values to help with lerping the icons
 	 */
 	void startLerping(){
-		canGetInput = false;
 		timeStartedLerping = Time.time;
 	}
 
@@ -219,15 +251,15 @@ public class AbilityDockController : MonoBehaviour {
 	float getPos(int i){
 		switch(i){
 		case 0:
-			return 375;
+			return 600;
 		case 1:
-			return 295;
+			return 475;
 		case 2:
-			return 215;
+			return 350;
 		case 3:
-			return 135;
+			return 225;
 		case 4:
-			return 55;
+			return 100;
 		default:
 			return 0;
 		}

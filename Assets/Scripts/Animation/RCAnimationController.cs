@@ -13,6 +13,7 @@ public class RCAnimationController : MonoBehaviour
     StatePatternEnemy redcoat;
     IEnemyState state;
 
+
     void Start()
     {
         if(GetComponent<StatePatternEnemy>() == null)
@@ -42,10 +43,15 @@ public class RCAnimationController : MonoBehaviour
             animController.SetBool("Walk", true);
             SetAllBoolParams("Walk", false);
         }
-        else if(state is SearchingState)
+        else if (state is SearchingState)
         {
             animController.SetBool("Turn", true);
             SetAllBoolParams("Turn", false);
+        }
+        else if (state is ChaseState)
+        {
+            animController.SetBool("Chase", true);
+            SetAllBoolParams("Chase", false);
         }
         else
         {

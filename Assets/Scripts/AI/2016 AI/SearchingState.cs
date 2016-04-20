@@ -32,14 +32,14 @@ public class SearchingState : IEnemyState
     {
         enemy.currentState = enemy.patrolState;
         searchTimer = 0f;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToChaseState()
     {
         enemy.currentState = enemy.chaseState;
         searchTimer = 0f;
-        enemy.moveSpeed = enemy.chaseSpeed;
+        enemy.moveSpeed = 10f;
     }
 
     public void ToGuardState()
@@ -96,7 +96,6 @@ public class SearchingState : IEnemyState
     private void Search()
     {
         //when the AI can no longer find the player, they will spin around checking surroundings for the player
-        enemy.meshRendererFlag.material.color = Color.yellow;
         enemy.navMeshAgent.Stop();
         enemy.transform.Rotate(0, enemy.searchingTurnSpeed * Time.deltaTime, 0);
         searchTimer += Time.deltaTime;

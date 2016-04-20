@@ -35,7 +35,7 @@ public class PatrolState : IEnemyState
     public void ToChaseState()
     {
         enemy.currentState = enemy.chaseState;
-        enemy.moveSpeed = enemy.chaseSpeed;
+        enemy.moveSpeed = 10f;
     }
 
     public void ToGuardState()
@@ -52,13 +52,13 @@ public class PatrolState : IEnemyState
     {
         enemy.currentState = enemy.distractedState;
         enemy.noiseLoc = distractedPoint;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToSearchingState()
     {
         enemy.currentState = enemy.searchingState;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToSuspiciousState()
@@ -93,13 +93,21 @@ public class PatrolState : IEnemyState
         RaycastHit hit;
         if (Vector3.Angle(enemy.player.transform.position - enemy.transform.position, enemy.transform.forward) < enemy.sightAngle)
         {
+            if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange, enemy.NoOcclusionLM))
+            {
+            }
             if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange) && hit.collider.CompareTag("Player"))
                 //check if player is hidden - if not hidden run below else do nothing (player is not seen)
             {
                 enemy.chaseTarget = hit.transform;
-                //if enemy is alert type
-                //ToChaseState();
-                ToSuspiciousState();
+                if (enemy.alert == true)
+                {
+                    ToChaseState();
+                }
+                else
+                {
+                    ToSuspiciousState();
+                }
             }
         }
     }
@@ -125,16 +133,12 @@ public class PatrolState : IEnemyState
                     case 0: //From A to B to C etc (one way)
                         if (enemy.CheckpointCount < CheckpointScript.getPoints().Count)
                         {
-                            if (enemy.CheckpointCount != CheckpointScript.getPoints().Count)
+                            if (CheckpointScript.getSearch()[enemy.CheckpointCount] == true)
                             {
-                                if (CheckpointScript.getSearch()[enemy.CheckpointCount] == true)
-                                {
-                                    ToPointSearchState(CheckpointScript.getMinAngle()[enemy.CheckpointCount], CheckpointScript.getMaxAngle()[enemy.CheckpointCount], CheckpointScript.getTurnSpeed()[enemy.CheckpointCount], CheckpointScript.getLoopCount()[enemy.CheckpointCount]);
-                                }
-                                enemy.CheckpointCount++;
-                                enemy.navPoint = CheckpointScript.getPoints()[enemy.CheckpointCount];
-
+                                ToPointSearchState(CheckpointScript.getMinAngle()[enemy.CheckpointCount], CheckpointScript.getMaxAngle()[enemy.CheckpointCount], CheckpointScript.getTurnSpeed()[enemy.CheckpointCount], CheckpointScript.getLoopCount()[enemy.CheckpointCount]);
                             }
+                            enemy.CheckpointCount++;
+                            enemy.navPoint = CheckpointScript.getPoints()[enemy.CheckpointCount];
                         }
                         else
                         {
@@ -253,7 +257,6 @@ public class PatrolState : IEnemyState
 
             }
         }
-        enemy.meshRendererFlag.material.color = Color.green;
         enemy.navMeshAgent.destination = enemy.navPoint;
         enemy.navMeshAgent.Resume();
     }

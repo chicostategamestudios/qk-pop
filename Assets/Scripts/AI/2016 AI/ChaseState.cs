@@ -53,7 +53,7 @@ public class ChaseState : IEnemyState
     {
         enemy.currentState = enemy.searchingState;
         chaseTimer = 0f;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToSuspiciousState()
@@ -113,7 +113,6 @@ public class ChaseState : IEnemyState
         {
             enemy.moveSpeed = enemy.moveSpeed - (chaseTimer / 1000);
         }
-        enemy.meshRendererFlag.material.color = Color.red;
         enemy.navMeshAgent.destination = enemy.chaseTarget.position;
         enemy.navMeshAgent.Resume ();
     }

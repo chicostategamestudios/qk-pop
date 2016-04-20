@@ -6,7 +6,6 @@ public class SuspiciousState : IEnemyState
     private readonly StatePatternEnemy enemy;
     private float suspiciousTimer;
     private float suspiciousTimerLimit = 5f;
-    private Color lerpedColor = Color.yellow;
     private bool checking = false;
     private float chaseTimer = 0;
 
@@ -156,7 +155,5 @@ public class SuspiciousState : IEnemyState
             //if player is seen checking is false
 
         }
-        lerpedColor = Color.Lerp(Color.yellow, Color.red, suspiciousTimer/suspiciousTimerLimit);
-        enemy.meshRendererFlag.material.color = lerpedColor;
     }
 }

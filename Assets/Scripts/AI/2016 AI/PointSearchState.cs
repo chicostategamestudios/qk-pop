@@ -39,13 +39,13 @@ public class PointSearchState : IEnemyState
         enemy.currentState = enemy.patrolState;
         searchCase = 0;
         loopNumber = 0;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToChaseState()
     {
         enemy.currentState = enemy.chaseState;
-        enemy.moveSpeed = enemy.chaseSpeed;
+        enemy.moveSpeed = 10f;
     }
 
     public void ToGuardState()
@@ -111,7 +111,6 @@ public class PointSearchState : IEnemyState
     {
         firstAngle = new Vector3(0, enemy._minAngle, 0);
         secondAngle = new Vector3(0, enemy._maxAngle, 0);
-        enemy.meshRendererFlag.material.color = Color.blue;
         enemy.navMeshAgent.Stop();
         if (loopNumber <= enemy._searchCount)
         {

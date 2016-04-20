@@ -27,7 +27,7 @@ public class DazedState : IEnemyState
     {
         enemy.currentState = enemy.patrolState;
         dazeTimer = 0f;
-        enemy.moveSpeed = enemy.patrolSpeed;
+        enemy.moveSpeed = 5f;
     }
 
     public void ToChaseState()
@@ -82,6 +82,5 @@ public class DazedState : IEnemyState
         {
             ToPatrolState();
         }
-        enemy.meshRendererFlag.material.color = Color.gray;
     }
 }

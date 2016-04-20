@@ -15,19 +15,18 @@ Update and OnTrigger in this script will run the updateState/OnTriggerstate insi
 
 public class StatePatternEnemy : MonoBehaviour
 {
-    public float moveSpeed;                            //!<float to adjust the movement speed of the AI
-    public float patrolSpeed;
-    public float chaseSpeed;                          //!<float to  adjust the chasing speed of the AI
+    public float moveSpeed = 5f;                            //!<float to keep adjust the movement speed of the AI
     public float searchingTurnSpeed = 180f;                 //!<float to adjust how fast the AI turns when in the searching state
     public float searchingDuration = 4f;                    //!<float to adjust how long the AI stays in the searching state
     public float sightRange = 20f;                          //!<float to adjust how far the AI can see
     public float sightAngle = 20f;                          //!<float to adjust the sight angle of the AI
     public float suspiciousCheckRange = 10f;
-    public MeshRenderer meshRendererFlag;                   //!<Used only for showing the gradual change of the AI state
     public int current_preset = 0;                          //!<preset setting for the AI editor draw from
     public bool customType = false;                         //!<bool used in the ai editor for custom AI types to be created
     public bool seesTarget;                                 //!<bool to determine if the AI can see the player or not
     public GameObject player;                               //!<stores the player so it can be referenced easily
+    public GameObject NoiseHeard;
+    public bool alert;
 
     //Path Variables
     public List<GameObject> Pathways;                       //!<List of the paths the AI uses. Paths are gameobjects with a list of vectors 3s that the AI uses to as waypoints. See AI's editor for paths.
@@ -49,6 +48,12 @@ public class StatePatternEnemy : MonoBehaviour
     public float _maxAngle;
     public float _turnSpeed;
     public int _searchCount;
+
+    //Setting Layers
+    private int noOcclusionLayer = 8;
+    //Initialize 32bit layermasks
+    public int NoOcclusionLM = 1;
+
 
 
     [HideInInspector] public Transform chaseTarget;
@@ -79,6 +84,13 @@ public class StatePatternEnemy : MonoBehaviour
         pointSearchState = new PointSearchState(this);
 
         navMeshAgent = GetComponent<NavMeshAgent>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        Path = Pathways[0];
+        AIPath CheckpointScript = Path.GetComponent<AIPath>();
+        navPoint = CheckpointScript.getPoints()[0];
+        currentState = patrolState; //sets the current state
+        NoOcclusionLM = 1 << noOcclusionLayer;
+        NoOcclusionLM = ~NoOcclusionLM;
     }
 
 
@@ -90,19 +102,12 @@ public class StatePatternEnemy : MonoBehaviour
         Set default state of the AI (walking, patroling, guarding)
         set current state to default state
         */
-        player = GameObject.FindGameObjectWithTag("Player");
-        Path = Pathways[0];
-        AIPath CheckpointScript = Path.GetComponent<AIPath>();
-        navPoint = CheckpointScript.getPoints()[0];
-        currentState = patrolState;
-        moveSpeed = patrolSpeed; //sets the current state
-        //THIS might not be needed maybe idk lets find out navPoint = CheckpointScript.getPoints()[CheckpointCount];
+
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        Debug.Log(currentState);
         navMeshAgent.speed = moveSpeed;
         currentState.UpdateState(); //calls the update of the current state
         if (currentState == distractedState)

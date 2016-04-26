@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 
 //! Base class for the different input types
-public abstract class InputType : MonoBehaviour
-{
-    // Dictionaries that hold all inputs. Input list is read from JSON file
-    public Dictionary<string, string> keyButtons { get; protected set; }
-    public Dictionary<string, string> controllerButtons { get; protected set; }
+public abstract class InputType : MonoBehaviour {
 
-    public virtual string InputString() {
+	public virtual string InputString() {
 		return "";
 	}
 	public virtual bool GetKey(string keyPressed) {

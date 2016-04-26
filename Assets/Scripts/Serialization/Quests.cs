@@ -3,11 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 using System;
-//using Debug = FFP.Debug;
 
 public class Quest {
 
-	const string questListFilePath = "questList";
+	const string questListFilePath = "/Resources/questList.json";
 
 	int iden;
 	string name;
@@ -37,23 +36,12 @@ public class Quest {
 		timer = true;
 	}
 
-	private bool loadListFromFile(string filePath){
-		if(!System.IO.File.Exists(Application.dataPath + filePath)) {
-			Debug.Log( "File does not exist: " + Application.dataPath + filePath);
-			return false;
-		}
-		string json = System.IO.File.ReadAllText(Application.dataPath + filePath);
-		string platform = Application.platform.ToString();
-		//return loadListFromJson(json, platform);
-		return true;
-	}
-
 	public Quest AddQuest(int id) {
 		JSONNode quests = RetrieveQuestsFromJSON ();
 		char[] deliminerChars = {'"'};
 
 		if (quests[id.ToString()] == null) {
-			//Debug.Error("Quest ID: " + id + " doesn't exist! Make sure it is added into the JSON file.");
+			Debug.LogError("Quest ID: " + id + " doesn't exist! Make sure it is added into the JSON file.");
 			return null;
 		}
 		if (quests [id.ToString()].Count == 4) {
@@ -71,7 +59,7 @@ public class Quest {
 				else {
 					string[] goalText = quests[id.ToString()][3][i].ToString().Split(deliminerChars);
 					Goal newGoal = new Goal(goalText[1],  Convert.ToInt32(goalText[3]));
-					Debug.Log( quests[id.ToString ()][3][i].Keys.ToString());
+					Debug.Log(quests[id.ToString ()][3][i].Keys);
 					newGoals[i] = newGoal;
 				}
 			}
@@ -89,7 +77,7 @@ public class Quest {
 			Quest newQuest = new Quest(quests[id.ToString ()][0], quests[id.ToString ()][1], quests[id.ToString ()][2], quests[id.ToString ()][3].AsInt, id, newGoals);
 			return newQuest;
 		}
-		Debug.Log ( "Not the right amount of parameters in questList.json for Quest ID:" + id);
+		Debug.Log ("Not the right amount of parameters in questList.json for Quest ID:" + id);
 		return null;
 	}
 
@@ -133,26 +121,15 @@ public class Quest {
 		return null;
 	}
 
+	private JSONNode RetrieveQuestsFromJSON() {
 
-	private JSONNode RetrieveQuestsFromJSON()
-    {
-		/*if(!System.IO.File.Exists(Application.dataPath + "/Resources/questList.json"))
+		if(!System.IO.File.Exists(Application.dataPath + "/Resources/questList.json"))
 		{
-			Debug.LogError ("Could not find Quest List JSON file... File path: " + Application.dataPath + questListFilePath);
-			DebugOnScreen.Log(Application.dataPath + questListFilePath);
-			
+			Debug.LogError ("Could not find Quest List JSON file");
 			return null;
-		}*/
+		}
 
-        TextAsset json = Resources.Load<TextAsset>(questListFilePath);
-
-        if(json == null)
-        {
-            Debug.LogError("QuestList not loaded from JSON");
-        }
-
-
-		string jsonRead = json.text;
+		string jsonRead = System.IO.File.ReadAllText(Application.dataPath + "/Resources/questList.json");
 		JSONNode jsonParsed = JSON.Parse (jsonRead);
 
 		return jsonParsed;
@@ -182,20 +159,18 @@ public class Quest {
 				break;
 			}
 		}
-		if(allCompleted){
-			GameHUD.Instance.calcCompass = false;
-		}
+
 		return allCompleted;
 	}
 
 	public void CompleteGoalInQuest(int goalIndex) {
 		if (goal [goalIndex] == null) {
-			Debug.Log( "Goal " + goalIndex + " does not exist!");
+			Debug.Log("Goal " + goalIndex + " does not exist!");
 			return;
 		}
 
 		if (goal [goalIndex].IsCompleted () == true) {
-			Debug.Log( "Goal already completed!");
+			Debug.Log("Goal already completed!");
 		}
 
 		goal [goalIndex].Complete ();
@@ -204,12 +179,12 @@ public class Quest {
 
 	public void ProgressGoalInQuest(int goalIndex) {
 		if (goal [goalIndex] == null) {
-			Debug.Log( "Goal " + goalIndex + " does not exist!");
+			Debug.Log("Goal " + goalIndex + " does not exist!");
 			return;
 		}
 		
 		if (goal [goalIndex].IsCompleted () == true) {
-			Debug.Log( "Goal already completed!");
+			Debug.Log("Goal already completed!");
 		}
 		
 		goal [goalIndex].Progress ();

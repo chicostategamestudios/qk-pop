@@ -21,10 +21,11 @@ public class QK_Character_Movement : MonoBehaviour {
 
 	public enum CharacterState {Idle, Move, Pivot, Sprint, Crouch, Hang, Ladder, Sidle, Wait, Normal}
 	public CharacterState _moveState { get; private set; }
-	public CharacterState _stateModifier { get; private set; }
+	public CharacterState _stateModifier { get; set; }
 
 	public static CharacterController charCont;
-
+	public bool inADialogue = false;
+	
 	[ReadOnly] public float curSpeed = 0f;
 	private float acceleration = 0.3f;
 	[ReadOnly] public float runSpeed = 8f;
@@ -36,6 +37,7 @@ public class QK_Character_Movement : MonoBehaviour {
 	[ReadOnly] public float verticalVelocity = 0f;
 	private float terminalVelocity = 30f;
 	private float turnRate = 5f;
+    public bool isHidden = false;
 
 	private Vector3 moveVector = Vector3.zero;
 	private Vector3 desiredMoveVector = Vector3.zero;
@@ -58,6 +60,8 @@ public class QK_Character_Movement : MonoBehaviour {
 	private Vector3 slideDirection;
 	private Quaternion targetAngle = Quaternion.identity;
 	private PoPCamera cam;
+
+
 
     void Awake()
     {
@@ -93,6 +97,9 @@ public class QK_Character_Movement : MonoBehaviour {
 				ClimbLadder();
 				break;
 
+			case CharacterState.Wait:
+				break;
+				
 			default:
 				ProcessStandardMotion();
 				break;
@@ -102,7 +109,7 @@ public class QK_Character_Movement : MonoBehaviour {
 
     void ProcessStandardMotion()
 	{
-		if (Input.GetAxisRaw("Vertical") != 0 || Input.GetAxisRaw("Horizontal") != 0) {
+		if(InputManager.input.MoveVerticalAxis() != 0 || InputManager.input.MoveHorizontalAxis() != 0) {
 			curSpeed += acceleration;
 			curSpeed *= inputDirection.magnitude;
 		} else {
@@ -134,8 +141,8 @@ public class QK_Character_Movement : MonoBehaviour {
 
 	void CalculateMovementDirection ()
 	{
-		float inputHor = Input.GetAxisRaw("Horizontal");
-		float inputVert = Input.GetAxisRaw("Vertical");
+		float inputHor = InputManager.input.MoveHorizontalAxis();
+		float inputVert = InputManager.input.MoveVerticalAxis();
 		Vector3 forward = transform.position + cam.transform.forward;
 		forward = new Vector3(forward.x, transform.position.y, forward.z);
 		forward = Vector3.Normalize(forward - transform.position);
@@ -249,6 +256,8 @@ public class QK_Character_Movement : MonoBehaviour {
 				_stateModifier = CharacterState.Sprint;
 			} else if (false) {
 				_stateModifier = CharacterState.Crouch;
+			} else if (inADialogue){
+				_stateModifier = CharacterState.Wait;
 			} else {
 				_stateModifier = CharacterState.Normal;
 			}

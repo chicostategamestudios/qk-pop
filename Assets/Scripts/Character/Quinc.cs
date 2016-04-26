@@ -130,11 +130,11 @@ public sealed class Quinc : MonoBehaviour
 					break;
 
 				case quincy_ability.Push:
-					script.Push(gameObject.transform.position, pushDistance);
+					script.Push(gameObject.transform.position, pushDistance, pushRange);
 					break;
 
 				case quincy_ability.Pull:
-					script.Pull(gameObject.transform.position, pushDistance);
+					script.Pull(gameObject.transform.position, pushDistance, pullRange);
 					break;
 
 				case quincy_ability.Heat:

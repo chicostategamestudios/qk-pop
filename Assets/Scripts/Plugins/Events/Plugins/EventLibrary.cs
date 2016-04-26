@@ -36,7 +36,6 @@ public static class EventLibrary {
 	public static string[] staticClassesNice = new string[] {};
 
 	public static Dictionary<string, System.Type> monoClasses = new Dictionary<string, System.Type> {
-		{ "StatePatternEnemy", typeof(StatePatternEnemy) },
 		{ "AIMain", typeof(AIMain) },
 		{ "AIMainTrimmed", typeof(AIMainTrimmed) },
 		{ "QuestNPC", typeof(QuestNPC) },
@@ -51,10 +50,9 @@ public static class EventLibrary {
 		{ "GameHUD", typeof(GameHUD) },
 	};
 
-	public static string[] monoClassesNice = new string[] { "StatePatternEnemy",  "AIMain",  "AIMainTrimmed",  "QuestNPC",  "PlayerInventory",  "QuestManager",  "Crate",  "Enemy",  "Rope",  "Well",  "PlayerSaveManager",  "DialogueManager",  "UI", };
+	public static string[] monoClassesNice = new string[] { "AIMain",  "AIMainTrimmed",  "QuestNPC",  "PlayerInventory",  "QuestManager",  "Crate",  "Enemy",  "Rope",  "Well",  "PlayerSaveManager",  "DialogueManager",  "UI", };
 
 	public static Dictionary<string, bool> instanceClasses = new Dictionary<string, bool> {
-		{ "StatePatternEnemy", false},
 		{ "AIMain", false},
 		{ "AIMainTrimmed", false},
 		{ "QuestNPC", false},
@@ -77,7 +75,7 @@ public static class EventLibrary {
 		{ "CrateMethods", new string[] {"TestCrateFunction", } },
 		{ "PlayerSaveManagerMethods", new string[] {"SavePlayerLocation", "LoadPlayerLocation", } },
 		{ "DialogueManagerMethods", new string[] {"Speak", } },
-		{ "GameHUDMethods", new string[] {"UpdateObjectiveText", "MoveCompassTargetPoint", "TriggerDialoguer", } },
+		{ "GameHUDMethods", new string[] {"UpdateObjectiveText", "SetDialogueBoxText", "HideDialogueBoxText", } },
 		{ "CrateFields", new string[] {"temp", } },
 		{ "ItemFields", new string[] {"pushCounter", "pullCounter", "cutCounter", "soundThrowCounter", "stunCounter", "quincAffected", } },
 	};
@@ -90,7 +88,7 @@ public static class EventLibrary {
 		{ "CrateMethods", new string[] {"test", } },
 		{ "PlayerSaveManagerMethods", new string[] {"SavePlayerLocation", "LoadPlayerLocation", } },
 		{ "DialogueManagerMethods", new string[] {"Speak", } },
-		{ "GameHUDMethods", new string[] {"UpdateObjectiveText", "MoveCompassTargetPoint", "TriggerDialoguer", } },
+		{ "GameHUDMethods", new string[] {"UpdateObjectiveText", "SetDialogueBoxText", "HideDialogueBoxText", } },
 		{ "CrateFields", new string[] {"temp", } },
 		{ "ItemFields", new string[] {"Pushed X Times", "Pulled X Times", "Cut X Times", "Sound Thrown X Times", "Stunned X Times", "Affected by QuinC", } },
 	};

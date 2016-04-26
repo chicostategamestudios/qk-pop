@@ -12,14 +12,13 @@ public sealed class InputManager : MonoBehaviour
 	private static InputManager _instance;
 	public static InputManager instance {
 		get { return _instance ?? (_instance = GameObject.FindObjectOfType<InputManager>());} 
-		private set { }
+		private set{ }
 	}
-
 	private Inputs _curInput { get; set; }
 	public static InputType input 
 	{ 
 		get { return InputManager.instance.inputs[InputManager.instance._curInput]; }
-		private set { }
+		set { }
 	}
 
 	private Dictionary<Inputs, InputType> inputs = new Dictionary<Inputs, InputType>();
@@ -29,8 +28,7 @@ public sealed class InputManager : MonoBehaviour
         _instance = null;
     }
 
-	void Start()
-    {
+	void Start() {
 		inputs.Add(Inputs.UI, this.gameObject.AddComponent<UIInputType>());
 		inputs.Add(Inputs.Game, this.gameObject.AddComponent<GameInputType>());
 		inputs.Add(Inputs.Keyboard, this.gameObject.AddComponent<KeyboardInputType>());
@@ -48,18 +46,5 @@ public sealed class InputManager : MonoBehaviour
 		if(InputManager.instance.inputs.ContainsKey(inputType))
 			InputManager.instance._curInput = inputType;
 	}
-
-    // !Returns the mapped key by input name
-    public string GetGameInputKey(string input)
-    {
-        if (inputs[Inputs.Game].keyButtons.ContainsKey(input))
-        {
-            Debug.Warning("GameInput has no input for \"" + input + "\".");
-            return "";
-        }
-        else
-        {
-            return inputs[Inputs.Game].keyButtons[input];
-        }
-    }
+	
 }

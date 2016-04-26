@@ -3,96 +3,81 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using Debug = FFP.Debug;
 
 public class QuestManagerUIController : MonoBehaviour {
 
-	public GameObject questContainer;
-	public GameObject questUI;
-	public float spacing;
-
 	GameObject player;
-	GameObject moreQuestInfo;
+	public GameObject questContainer;
 	QuestManager qm;
+	public GameObject questUI;
 	Button questButton;
 	float buttonHeight;
-	float newScrollVal;
-	float qcHeight;
+	public float spacing;
+	GameObject moreQuestInfo;
 	Text moreQuestInfoTitle;
 	Text moreQuestInfoDescription;
 	Scrollbar mainScrollbar;
 	Scrollbar moreInfoScrollbar;
 	bool mainSelected;
 	bool isScrolling;
+	float newScrollVal;
 	EventSystem theEventSystem;
+	float qcHeight;
 	int lastButtonSelected;
 	List<GameObject> allQuests;
 	List<Quest>[] theLists;
-	GameHUD gameHUD;
-
-
-	void Awake(){
+	
+	void Start(){
 		player = GameObject.Find ("_Player");
 		if (player) {
 			qm = player.GetComponent<QuestManager>();
 		}
 		else {
-			Debug.Error("ui","QuestManagerUI Script attached to 'QuestManager' object could not find a player in the scene!");
+			Debug.LogError("QuestManagerUI Script attached to 'QuestManager' object could not find a player in the scene!");
 		}
 		if (!questContainer) {
-			Debug.Error("ui","QuestManagerUI Script attached to 'QuestManager' object could not find a child GameObject called 'Quests' the prefab connection could be broken.");
+			Debug.LogError("QuestManagerUI Script attached to 'QuestManager' object could not find a child GameObject called 'Quests' the prefab connection could be broken.");
 		}
 		moreQuestInfo = transform.FindChild ("MoreQuestInfo").gameObject;
 		if (!moreQuestInfo) {
-			Debug.Error ("ui","QuestManagerUI script could not find the child object called 'MoreQuestInfo' the prefab may be broken");
+			Debug.LogError ("QuestManagerUI script could not find the child object called 'MoreQuestInfo' the prefab may be broken");
 		}
 		moreQuestInfoTitle = moreQuestInfo.transform.FindChild ("QuestTitle").GetComponent<Text> ();
 		if (!moreQuestInfoTitle) {
-			Debug.Error ("ui","QuestManagerUI script could not find the child object called 'QuestTitle' the prefab may be broken");
+			Debug.LogError ("QuestManagerUI script could not find the child object called 'QuestTitle' the prefab may be broken");
 		}
 		moreQuestInfoDescription = moreQuestInfo.transform.FindChild ("ScrollView").transform.FindChild ("QuestDescription").GetComponent<Text> ();
 		if (!moreQuestInfoDescription) {
-			Debug.Error ("ui","QuestManagerUI script could not find the child object called 'QuestDescription' the prefab may be broken");
+			Debug.LogError ("QuestManagerUI script could not find the child object called 'QuestDescription' the prefab may be broken");
 		}
 		mainScrollbar = transform.FindChild("MainScrollbar").GetComponent<Scrollbar>();
 		if(!mainScrollbar){
-			Debug.Error ("ui","QuestManagerUI script could not find the child object called 'MainScrollbar' the prefab may be broken");
+			Debug.LogError ("QuestManagerUI script could not find the child object called 'MainScrollbar' the prefab may be broken");
 		}
 		moreInfoScrollbar = transform.FindChild("MoreQuestInfo").FindChild("MoreQuestInfoScrollbar").GetComponent<Scrollbar>();
 		if(!moreInfoScrollbar){
-			Debug.Error ("ui","QuestManagerUI script could not find the child object called 'MoreQuestInfoScrollbar' the prefab may be broken");
+			Debug.LogError ("QuestManagerUI script could not find the child object called 'MoreQuestInfoScrollbar' the prefab may be broken");
 		}
 		theEventSystem = GameObject.Find ("EventSystem").GetComponent<EventSystem>();
 		if(!theEventSystem){
-			Debug.Error("ui","QuestManagerUI script could not find the EventSystem in the scene. Make sure the scene has an EventSystem");
-		}
-		gameHUD = GameObject.Find ("_HUDManager").GetComponent<GameHUD> ();
-		if (!gameHUD) {
-			Debug.Error("ui","Could not find the 'GameHUD' script on the '_HUDManager' GameObject in the scene: " + Application.loadedLevelName);
+			Debug.LogError("QuestManagerUI script could not find the EventSystem in the scene. Make sure the scene has an EventSystem");
 		}
 		questButton = questUI.GetComponent<Button> ();
 		buttonHeight = questButton.GetComponent<RectTransform> ().sizeDelta.y;
-
-		theLists = new List<Quest>[3];		
-	}
-
-	void Start(){
-		
+		theLists = new List<Quest>[3];
 		theLists[0] = qm.currentQuests;
 		theLists[1] = qm.failedQuests;
 		theLists[2] = qm.completedQuests;
-
+		
 		for(int i = 0; i < theLists.Length; i++){
-			if(theLists[i] != null){
-				qcHeight += (theLists[i].Count * (buttonHeight + spacing) - spacing);
-			}
+			qcHeight += (theLists[i].Count * (buttonHeight + spacing) - spacing);
 		}
+		qm.LoadQuests ();
 	}
 
 	void Update(){
-		//For debugging, change to use input manager later.
+		//For debugging, remove later.
 		if (Input.GetKeyDown (KeyCode.F5)) {
-			qm.LoadQuests();
 			showQuests();
 		}
 		if((Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)) && mainSelected){
@@ -104,22 +89,14 @@ public class QuestManagerUIController : MonoBehaviour {
 		if(isScrolling && (theLists[0].Count > 0 || theLists [1].Count > 0 || theLists[2].Count > 0)){
 			mainScrollbar.value = 1 - ((Mathf.Abs(theEventSystem.currentSelectedGameObject.transform.localPosition.y) - 50.5f) / (qcHeight - 101f));
 		}
-		if(Input.GetKeyDown (KeyCode.Escape)){
-			if(mainSelected){
-				//go back to Journal
-				gameHUD.HideQMUI();
-			}
-			else{
-				//deselect the moreQuestInfoScrollbar and select the last quest button that was selected
-				allQuests[lastButtonSelected].GetComponent<Button>().Select();
-				mainSelected = true;
-			}
+		if(Input.GetKeyDown (KeyCode.Escape) && !mainSelected){
+			allQuests[lastButtonSelected].GetComponent<Button>().Select();
+			mainSelected = true;
 		}
 	}
 
 	public void showQuests(){
 		removeQuestUIobjects ();
-		qm.LoadQuests ();
 		reorganizeQuests ();
 	}
 
@@ -129,16 +106,13 @@ public class QuestManagerUIController : MonoBehaviour {
 	 * This function organizes quests by active, failed, then completed quests.
 	 */
 	public void reorganizeQuests(){
-		Debug.Log ("ui","Reorganizing quests");
 		allQuests = new List<GameObject> ();
 		mainSelected = true;
 		moreQuestInfoTitle.text = "";
 		moreQuestInfoDescription.text = "";
 		qcHeight = 0;
 		for(int i = 0; i < theLists.Length; i++){
-			if(theLists[i] != null){
-				qcHeight += (theLists[i].Count * (buttonHeight + spacing) - spacing);
-			}
+			qcHeight += (theLists[i].Count * (buttonHeight + spacing) - spacing);
 		}
 		RectTransform containerTransform = questContainer.GetComponent<RectTransform> ();
 		containerTransform.sizeDelta = new Vector2 (100, qcHeight);
@@ -149,7 +123,6 @@ public class QuestManagerUIController : MonoBehaviour {
 
 		int iter = 0;
 		for(int i = 0; i < theLists.Length; i++){
-			if(theLists[i] != null){
 			for(int j = 0; j < theLists[i].Count; j++){
 				GameObject newQuestButton = Instantiate(questUI, new Vector3(0, 0 - (iter * (buttonHeight + spacing) + (buttonHeight/2)), 0), Quaternion.identity) as GameObject;
 				newQuestButton.transform.SetParent(questContainer.transform, false);
@@ -163,15 +136,15 @@ public class QuestManagerUIController : MonoBehaviour {
 				}
 				iter++;
 			}
-			}
 		}
 		if (qm.questCount > 0) {
 			showMoreQuestInfo (0);
 		} 
 		else {
-			moreQuestInfoTitle.text = "No Active Quests!";
-			moreQuestInfoDescription.text = "You currently have no active quests! Go explore to find some!";
+			moreQuestInfoTitle.text = "No Quests!";
+			moreQuestInfoDescription.text = "You have no quests! Go explore to find some!";
 		}
+		StartCoroutine(showMoreInfoScrollbar());
 
 		if (qm.questCount < 7) {
 			GameObject scrollingHandle = mainScrollbar.transform.FindChild ("Sliding Area").transform.FindChild ("Handle").gameObject;
@@ -206,22 +179,16 @@ public class QuestManagerUIController : MonoBehaviour {
 	/* This coroutine is needed to fix a bug.
 	 * Without the short delay that this adds into the code, the program was getting the previous value for the height of the moreQuestInfoDescription
 	 */
-	IEnumerator showMoreInfoScrollbar(){
-		while (true) {
-			float delayTime = Time.realtimeSinceStartup + 0.00001f;
-			while(Time.realtimeSinceStartup < delayTime){
-				yield return null;
+		IEnumerator showMoreInfoScrollbar(){
+			yield return new WaitForSeconds (0.00001f);
+			if(moreQuestInfoDescription.GetComponent<RectTransform>().rect.height < 560){
+				moreInfoScrollbar.gameObject.SetActive(false);
 			}
-			break;
+			else{
+				moreInfoScrollbar.gameObject.SetActive(true);
+			}
 		}
-		if(moreQuestInfoDescription.GetComponent<RectTransform>().rect.height < 560){
-			moreInfoScrollbar.gameObject.SetActive(false);
-		}
-		else{
-			moreInfoScrollbar.gameObject.SetActive(true);
-		}
-	}
-	
+
 	/* Helper function that deletes all of the buttons that were dynamically created
 	 */
 	public void removeQuestUIobjects(){
@@ -236,23 +203,19 @@ public class QuestManagerUIController : MonoBehaviour {
 	 * j is the index of the quest in the list
 	 */
 	void showMoreQuestInfo(int iter){
-
 		int i;
 		int j;
-		if(theLists[0] != null && iter < theLists[0].Count){
+		if(iter < theLists[0].Count){
 			i = 0;
 			j = iter;
 		}
-		else if(theLists[1] != null && iter < theLists[0].Count + theLists[1].Count){
+		else if(iter < theLists[0].Count + theLists[1].Count){
 			i = 1;
 			j = iter - theLists[0].Count;
 		}
-		else if(theLists[2] != null){
+		else{
 			i = 2;
 			j = iter - theLists[0].Count - theLists[1].Count;
-		}
-		else{
-			return;
 		}
 		moreQuestInfoTitle.text = theLists[i][j].GetName();
 		Goal[] currQuestGoals = theLists[i][j].GetGoal();

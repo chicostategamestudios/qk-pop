@@ -12,11 +12,20 @@ public sealed class MasterSceneManager : MonoBehaviour {
 
 	#region singletonEnforcement
 	private static MasterSceneManager instance;
-	public static MasterSceneManager Instance
-    {
-		get 
-        {
-			return instance ?? (instance = GameObject.FindObjectOfType<MasterSceneManager>());
+	public static MasterSceneManager Instance {
+		get {
+			return instance;
+		}
+		private set { }
+	}
+
+	void Awake(){
+		if (instance == null){
+			instance = this;
+		}else {
+			Destroy(this.gameObject);
+			Debug.Error("core", "Second MasterSceneManager detected. Deleting gameOject.");
+			return;
 		}
 	}
 	#endregion
@@ -68,13 +77,5 @@ public sealed class MasterSceneManager : MonoBehaviour {
 			ObjectManager.LoadTopObjects();
 			Debug.Log("core", "Level " + levelName + " loaded\nAdditive = " + additive + ".");
 		}
-	}
-
-	public void loadLevelWithIndex (int levelIndex){
-		Application.LoadLevel (levelIndex);
-	}
-	
-	public void quitGame(){
-		Application.Quit ();
 	}
 }

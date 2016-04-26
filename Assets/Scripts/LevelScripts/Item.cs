@@ -235,12 +235,12 @@ public class Item : MonoBehaviour
 		}
 	}
 
-	public void Push(Vector3 player_position, float push_force){
+	public void Push(Vector3 player_position, float push_force, float push_range){
 		switch (itemType) {
 		case item_type.Crate:	
 			if(pushCompatible){
 				if(!checkForSnapBack()){
-					crate_pushPull(player_position, push_force, current_push_type, false);
+					crate_pushPull(player_position, push_force, current_push_type, push_range, false);
 				}
 			}
 			else {
@@ -277,12 +277,12 @@ public class Item : MonoBehaviour
 		}
 	}
 
-	public void Pull(Vector3 player_position, float push_force){
+	public void Pull(Vector3 player_position, float push_force, float push_range){
 		switch (itemType) {
 		case item_type.Crate:
 			if(pullCompatible){
 				checkForSnapBack();
-				crate_pushPull(player_position, push_force, current_push_type, true);
+				crate_pushPull(player_position, push_force, current_push_type, push_range, true);
 			}
 			else {
 				NoEffect();
@@ -480,11 +480,16 @@ public class Item : MonoBehaviour
 		}
 	}
 
-	private void crate_pushPull(Vector3 player_pos, float magnitude, push_type type, bool pull){
+	private void crate_pushPull(Vector3 player_pos, float magnitude, push_type type, float push_range, bool pull){
 		Vector3 heading = new Vector3(0.0f, 0.0f, 0.0f);
 		float angle = 0.0f;
 		float offset = (angle_offset / 180) * Mathf.PI;
 		Vector3 pos = Vector3.zero;
+
+		// Checks for range of quinc.
+		if (Vector3.Distance (player_pos, gameObject.transform.position) >= push_range) {
+			return;
+		}
 
 		switch (type) {
 		case push_type.Free:

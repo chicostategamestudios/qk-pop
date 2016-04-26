@@ -73,19 +73,15 @@ public class PopEvent : MonoBehaviour {
     }
 
     void OnTriggerEnter(Collider other) {
-		//DebugOnScreen.Log ("Entering the POP event");
         if (isActive == false) { return; }
-        if (other.gameObject.GetComponent<QK_Character_Movement>())
+        if (other.gameObject.GetComponent<QK_Controller>())
         {
-			DebugOnScreen.Log (other.gameObject.name + " is entering the POP event " + this.gameObject.name);
-			//DebugOnScreen.Log(other.gameObject.name);
-			//DebugOnScreen.Log (this.name);
             EventListener.SlowUpdate(this);
         }
     }
     void OnTriggerExit(Collider other) {
         if (isActive == false) { return; }
-		if (other.gameObject.GetComponent<QK_Character_Movement>())
+		if (other.gameObject.GetComponent<QK_Controller>())
         {
             EventListener.SlowUpdate(this);
         }

@@ -95,23 +95,26 @@ public class PatrolState : IEnemyState
         RaycastHit hit;
         if (Vector3.Angle(enemy.player.transform.position - enemy.transform.position, enemy.transform.forward) < enemy.sightAngle)
         {
-            int layerMask = 1 << PoPCamera.instance.dialogueLayer | PoPCamera.instance.IgnoreRaycastLayer;
-            if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange, layerMask))
-            {
-            }
-            if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange) && hit.collider.CompareTag("Player"))
-                //check if player is hidden - if not hidden run below else do nothing (player is not seen)
-            {
-                enemy.chaseTarget = hit.transform;
-                if (enemy.alert == true)
-                {
-                    ToChaseState();
-                }
-                else
-                {
-                    ToSuspiciousState();
-                }
-            }
+			if(PoPCamera.instance != null)
+			{
+	            int layerMask = 1 << PoPCamera.instance.dialogueLayer | PoPCamera.instance.IgnoreRaycastLayer;
+	            if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange, layerMask))
+	            {
+	            }
+	            if (Physics.Raycast(enemy.transform.position, enemy.player.transform.position - enemy.transform.position, out hit, enemy.sightRange) && hit.collider.CompareTag("Player"))
+	                //check if player is hidden - if not hidden run below else do nothing (player is not seen)
+	            {
+	                enemy.chaseTarget = hit.transform;
+	                if (enemy.alert == true)
+	                {
+	                    ToChaseState();
+	                }
+	                else
+	                {
+	                    ToSuspiciousState();
+	                }
+	            }
+			}
         }
     }
     void Patrol()
